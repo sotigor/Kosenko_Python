@@ -104,7 +104,6 @@ defined_brackets_seq = '[((())()(())]]'
 square_brackets = []
 round_brackets = []
 br_dict = {'(': ')', ')': '(', '[': ']', ']': '['}
-brackets_comb = ['[)]', '[(]', '(])', '([)']
 
 # Функция для задания 4: Проверка правильности скобочной последовательности
 def check_brackets_seq(user_brackets_seq: str = defined_brackets_seq):
@@ -140,9 +139,9 @@ def check_brackets_seq(user_brackets_seq: str = defined_brackets_seq):
     r_br_unpaired_unique = list(set(r_br_unpaired))
     sq_br_unpaired_unique = list(set(sq_br_unpaired))
 
-    # Проверка неправильных комбинаций скобок, если в парном количестве
-    incor_br_comb = []
-    incor_br_comb = [i for i in brackets_comb if i in user_brackets_seq]
+    # Проверка неправильной вложенности скобок, если скобки в парном количестве
+    # (когда используется несколько видов скобок)
+    incor_nested_br = check_nested_brackets(user_brackets_seq)
 
     # Проверка есть ли скобки в заданной скобочной последовательности
     is_brackets_in_seq = []
@@ -152,12 +151,12 @@ def check_brackets_seq(user_brackets_seq: str = defined_brackets_seq):
     if len(is_brackets_in_seq) == 0:
         print(f'Введенное выражение не содержит круглых или квадратных скобок!')
     else:
-        if len(r_br_unpaired) == 0 and len(sq_br_unpaired) == 0 and len(incor_br_comb) == 0:
+        if len(r_br_unpaired) == 0 and len(sq_br_unpaired) == 0 and len(incor_nested_br) == 0:
             print(f'Cкобочная последовательность {user_brackets_seq} является правильной!')
-        elif len(r_br_unpaired) == 0 and len(sq_br_unpaired) == 0 and len(incor_br_comb) != 0:
+        elif len(r_br_unpaired) == 0 and len(sq_br_unpaired) == 0 and len(incor_nested_br) != 0:
             print(f"Cкобочная последовательность {user_brackets_seq} является неправильной, поскольку не сооблюдается \n"
                   f"последовательная вложенность пар скобок и она содержит следующие неправильные последовательности скобок:\n"
-                  f"{','.join(incor_br_comb)}")
+                  f"{incor_nested_br}")
         else:
             print(f'Cкобочная последовательность {user_brackets_seq} является неправильной! \n'
                   f'Для того, чтобы сделать её правильной нужно добавить:')
@@ -193,6 +192,20 @@ def check_unpaired_brackets(brackets_seq: str, brackets_type: str) -> str:
         return brackets_seq
     else:
         return check_unpaired_brackets(''.join(brackets_seq.split(brackets_type)), brackets_type)
+
+# Функция для задания 4: Проверка, что скобки вложены правильно
+# (выполняется после проверки парности скобок, имеет смысл, когда разные виды скобок используются)
+def check_nested_brackets(brackets_seq: str) -> str:
+    """
+    Finding incorrectly nested brackets .
+    :param brackets_seq: sequence
+    :return: string with incorrectly nested brackets
+    """
+    if '()' not in brackets_seq and '[]' not in brackets_seq:
+        return brackets_seq
+    else:
+        arg = ''.join((''.join(brackets_seq.split('()'))).split('[]'))
+        return check_nested_brackets(arg)
 
 # Программа для проверки тестовых заданий
 while True:
